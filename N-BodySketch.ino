@@ -111,19 +111,19 @@ void loop() {
   // put your main code here, to run repeatedly:
   
   int i,j;
- 
-  if(argC!=2)
-    printf("Usage : %s <file name containing system configuration data>",argV[0]);
-  else{
-    initiateSystem(argV[1]);
-    printf("Body   :     x              y               z           |           vx              vy              vz   ");
-    for(i=0;i<timeSteps;i++){
-      printf("\nCycle %d\n",i+1);
-      simulate();
-      for(j=0;j<bodies;j++)
-        printf("Body %d : %lf\t%f\t%lf\t|\t%lf\t%lf\t%lf\n",j+1,positions[j].x,positions[j].y,positions[j].z,velocities[j].x,velocities[j].y,velocities[j].z);
-    }
+
+  // JCD 10/15/19: Removing usage of input console input parameters while we are using dummy data. New initiateSystem function takes no inputs
+  initiateSystem();
+  printf("Body   :     x              y               z           |           vx              vy              vz   ");
+  for(i=0;i<timeSteps;i++) {
+    
+    printf("\nCycle %d\n",i+1);
+    simulate();
+    
+    for(j=0;j<bodies;j++)
+      printf("Body %d : %lf\t%f\t%lf\t|\t%lf\t%lf\t%lf\n",j+1,positions[j].x,positions[j].y,positions[j].z,velocities[j].x,velocities[j].y,velocities[j].z);
   }
+
   return 0;
   
 }
