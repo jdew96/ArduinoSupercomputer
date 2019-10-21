@@ -1,8 +1,9 @@
 void assignAddresses() {
   unsigned char data = i2c_ADDRESS_MIN; //i2c useable adddress range: 8 - 119
 
-  Serial.print("Started addressing i2c at 0x");
-  Serial.println(data, HEX);
+  Serial.print("Addressing i2c devices starting with 0x");
+  Serial.print(data, HEX);
+  Serial.println("...");
 
   altSerial.write(data);
 }

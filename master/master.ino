@@ -4,13 +4,15 @@
 
 #include <Wire.h>
 #include <AltSoftSerial.h>
-//#include <I2C_Anything.h>
+#define MATRIX 0
+#define NBODY 1
 #define i2c_MASTER_ADDRESS 8
 #define i2c_ADDRESS_MIN 9
 #define i2c_ADDRESS_MAX 119
-#define i2c_PROPAGATION_DELAY 5 //this will be a bottleneck at some point
+#define i2c_PROPAGATION_DELAY 5 //this could be a bottleneck at some point
 #define HW_SERIAL_BAUD 115200
 #define SW_SERIAL_BAUD 9600
+#define WORKLOAD_MAGNITUDE 4 //may end up in dotproduct if nbodies doesn't scale work.
 
 AltSoftSerial altSerial;
 void commandPrompt();
@@ -18,7 +20,7 @@ void assignAddresses();
 void countDevices();
 void initiateSystem();
 void sendBodies();
-void receiveBody(uint8_t);
+void receiveBody(int);
 
 void setup() {
   Serial.begin(HW_SERIAL_BAUD);
@@ -53,19 +55,23 @@ void commandPrompt() {
       case 'a':
       case 'A':
         assignAddresses();
-        break;
-      case 'c':
-      case 'C':
+        delay(i2c_PROPAGATION_DELAY * i2c_ADDRESS_MAX);
         countDevices();
         break;
+      /* case 'c':
+        case 'C':
+         countDevices();
+         break;*/
       case 'n':
       case 'N':
         setupNBody();
+        broadcastOpcode(NBODY);
         sendBodies();
         break;
       case 'm':
       case 'M':
         setupMatrices();
+        broadcastOpcode(MATRIX);
         sendMatrices();
         break;
       default:

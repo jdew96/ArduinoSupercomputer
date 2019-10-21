@@ -1,6 +1,7 @@
 uint8_t devices = 0;
 
 void countDevices() {
+  devices = 0;
   Serial.println ("Scanning i2C net for devices...");
 
   for (uint8_t i = i2c_ADDRESS_MIN; i < i2c_ADDRESS_MAX; i++) {

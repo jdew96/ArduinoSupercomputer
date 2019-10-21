@@ -20,17 +20,17 @@ float *masses;
 vector *positions;
 vector *velocities;
 vector *accelerations;
-uint8_t bodies = devices;
-volatile body recieved; //is volatile necessary?
-
+uint8_t bodies;
+volatile body received; //is volatile necessary?
 
 void setupNBody() {
   initiateSystem();
+  Serial.print(bodies); Serial.println(" bodies initialized.");
   Wire.onReceive(receiveBody);
-  Serial.println("n-bodies initialized.");
 }
 
 void initiateSystem() {
+  bodies = devices;
   masses = (float*)malloc(bodies * sizeof(float));
   positions = (vector*)malloc(bodies * sizeof(vector));
   velocities = (vector*)malloc(bodies * sizeof(vector));
@@ -49,7 +49,7 @@ void initiateSystem() {
 
 void sendBodies() {
   if (bodies <= 0) //debug
-    Serial.println("you gotta count the devices first."); //debug
+    Serial.println("Device list empty. Did you assign addresses?"); //debug
 
   for (uint8_t i = 0; i < bodies; i++) {
     body new_body;
@@ -57,7 +57,6 @@ void sendBodies() {
     new_body.pos = positions[i];
     new_body.vel = velocities[i];
 
-    Serial.flush();
     Serial.println("sending");
     Serial.print("mass: :"); Serial.println(new_body.mass); //unnecessary
     Serial.print("position:"); Serial.print(new_body.pos.x);
@@ -66,7 +65,6 @@ void sendBodies() {
     Serial.print("velocity:"); Serial.print(new_body.vel.x);
     Serial.print(",");  Serial.print(new_body.vel.y);
     Serial.print(",");  Serial.println(new_body.vel.z); Serial.println();
-    Serial.flush();
 
     Wire.beginTransmission(i2c_ADDRESS_MIN);
     Wire.write((byte *) &new_body, sizeof new_body);
@@ -75,24 +73,22 @@ void sendBodies() {
   }
 }
 
-void receiveBody(uint8_t howMany) {
-  if (howMany < sizeof recieved)
+void receiveBody(int howMany) {
+  if ((uint8_t)howMany < sizeof received)
     return;
 
   // read into structure
-  byte * b = (byte *) &recieved;
-  for (byte i = 0; i < sizeof recieved; i++)
+  byte * b = (byte *) &received;
+  for (byte i = 0; i < sizeof received; i++)
     *b++ = Wire.read();
 
-  Serial.flush();
-  Serial.println("recieved");
+  Serial.println("received");
   Serial.println("body:");
-  Serial.print("mass: :"); Serial.println(recieved.mass); //unnecessary
-  Serial.print("position:"); Serial.print(recieved.pos.x);
-  Serial.print(",");  Serial.print(recieved.pos.y);
-  Serial.print(",");  Serial.println(recieved.pos.z);
-  Serial.print("velocity:"); Serial.print(recieved.vel.x);
-  Serial.print(",");  Serial.print(recieved.vel.y);
-  Serial.print(",");  Serial.println(recieved.vel.z); Serial.println();
-  Serial.flush();
+  Serial.print("mass: :"); Serial.println(received.mass); //unnecessary
+  Serial.print("position:"); Serial.print(received.pos.x);
+  Serial.print(",");  Serial.print(received.pos.y);
+  Serial.print(",");  Serial.println(received.pos.z);
+  Serial.print("velocity:"); Serial.print(received.vel.x);
+  Serial.print(",");  Serial.print(received.vel.y);
+  Serial.print(",");  Serial.println(received.vel.z); Serial.println();
 }
