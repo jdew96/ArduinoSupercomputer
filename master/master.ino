@@ -30,7 +30,7 @@ void setup() {
   Serial.println("setup complete.");
   Serial.println("Welcome to the shit show.\n");
   Serial.println("'A' to assign addresses.");
-  Serial.println("'C' to count devices.");
+  //Serial.println("'C' to count devices.");
   Serial.println("'N' to initiate n-body sequence.");
   Serial.println("'M' to initiate dot-product sequence.");
 }
