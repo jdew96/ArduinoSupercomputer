@@ -34,7 +34,7 @@ void sendMatrices() {
 
     for (uint8_t i = 0; i < n; i++) {
       for (uint8_t j = 0; j < n; j++) {
-        Serial.print((byte)&B[i][j]); Serial.print(' ');
+        //Serial.print((byte)&B[i][j]); Serial.print(' ');
       }
       Serial.println();
     }
@@ -45,10 +45,26 @@ void sendMatrices() {
       for (uint8_t j = 0; j < n; j++) {
         //Wire.write((byte)B[i][j]); //this works fine with hard-coded arrays
         Wire.write((byte)&B[i][j]);
-        delay(i2c_PROPAGATION_DELAY);
       }
     }
     Wire.endTransmission();
+    delay(i2c_PROPAGATION_DELAY);
+
+    ////---------------------------------------------------------------------- TRANSMITTING A-MATRIX BYTE BY BYTE ------- WAITING FOR MYLES TO TEST
+    Serial.println("broadcasting A");
+    uint8_t row = 0;
+    for (uint8_t addr = i2c_ADDRESS_MIN; addr < i2c_ADDRESS_MIN + devices; addr++) {
+      Wire.beginTransmission(addr); /// broadcast to each device individually
+      for (uint8_t rows_per = 0; rows_per < WORKLOAD_MAGNITUDE; rows_per++) { ////only pass rows to each device equal to workload magnitude
+        for (uint8_t i = 0; i < n; i++) {
+          Wire.write((byte)&A[row][i]);  ///pass each element in row
+        }
+        row++;  //increment row after passing every elem in previous row
+      }
+      Wire.endTransmission();
+      delay(i2c_PROPAGATION_DELAY);
+    }
+    ////-------------------------------------------------------------------------------------------------------------------------------------------
     /*
         Serial.println("broadcasting A");
 
