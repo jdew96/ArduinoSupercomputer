@@ -4,7 +4,6 @@
 
 #include <Wire.h>
 #include <AltSoftSerial.h>
-#include <I2C_Anything.h>
 #define MATRIX 0
 #define NBODY 1
 #define i2c_MASTER_ADDRESS 8
