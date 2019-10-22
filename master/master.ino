@@ -4,6 +4,7 @@
 
 #include <Wire.h>
 #include <AltSoftSerial.h>
+#include <I2C_Anything.h>
 #define MATRIX 0
 #define NBODY 1
 #define i2c_MASTER_ADDRESS 8
@@ -21,6 +22,11 @@ void countDevices();
 void initiateSystem();
 void sendBodies();
 void receiveBody(int);
+void setupNBody();
+void broadcastOpcode(bool);
+void setupMatrices();
+void sendMatrices();
+// ^^^some of these can probably be commented out
 
 void setup() {
   Serial.begin(HW_SERIAL_BAUD);
