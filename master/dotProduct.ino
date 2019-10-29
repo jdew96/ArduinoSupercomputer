@@ -16,13 +16,29 @@ void initiateMatrices() {
   for (uint8_t i = 0; i < n; i++) {
     A[i] = malloc(n * sizeof(float));
     // A[i] = random(1.175494e-38, 3.402823e+38); //i can't figure this out. probably wont make decimals.
-    A[i] = random(1, 100);
+    //A[i] = random(1, 100);
+    // Calculate decimal part of number randomly
+    int decNum = random(0,99);
+    float decValue = decNum / 100.0;
+    // Calculate integer part of number randomly 
+    int intValue = random(1,100);
+  
+    float finalVal = intValue + decValue;
+    A[i] = &finalVal;
   }
   B = malloc(n * sizeof(uint8_t *)); // allocate memory for B
   for (uint8_t i = 0; i < n; i++) {
     B[i] = malloc(n * sizeof(float));
     // B[i] = random(1.175494e-38, 3.402823e+38);
-    B[i] = random(1, 100);
+    //B[i] = random(1, 100);
+    // Calculate decimal part of number randomly
+    int decNum = random(0,99);
+    float decValue = decNum / 100.0;
+    // Calculate integer part of number randomly 
+    int intValue = random(1,100);
+  
+    float finalVal = intValue + decValue;
+    B[i] = &finalVal;
   }
   Serial.print("generated three "); Serial.print(n); Serial.print('x'); Serial.print(n); Serial.println("matrices.");
 }
