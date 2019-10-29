@@ -4,6 +4,7 @@
 
 #include <Wire.h>
 #include <AltSoftSerial.h>
+#include <I2C_Anything.h>
 #define i2c_MASTER_ADDRESS 8
 #define i2c_ADDRESS_MIN 9
 #define i2c_ADDRESS_MAX 119
@@ -14,8 +15,10 @@
 AltSoftSerial altSerial;
 void commandPrompt();
 void initiateSystem();
-void sendBodies();
+void sendBody();
 void receiveBody(uint8_t);
+void receiveOpcode(uint8_t);
+
 uint8_t i2c_LOCAL_ADDRESS = 0;//move
 
 uint8_t results_processed = 0;
@@ -27,11 +30,12 @@ void setup() {
   Serial.begin(HW_SERIAL_BAUD);
   altSerial.begin(SW_SERIAL_BAUD);
   Serial.println("setup complete.");
-  Wire.onReceive(recieveOpcode);
+  Wire.onReceive(receiveOpcode);
   receiveAddress();
 }
 
 void loop() {
+  //Serial.print('.');
 while(results_processed !=0)
   sendBody();
 }
