@@ -12,7 +12,8 @@
 #define i2c_PROPAGATION_DELAY 5 //this could be a bottleneck at some point
 #define HW_SERIAL_BAUD 115200
 #define SW_SERIAL_BAUD 9600
-#define WORKLOAD_MAGNITUDE 4 //may end up in dotproduct if nbodies doesn't scale work.
+uint8_t WORKLOAD_MAGNITUDE = 1;
+uint8_t devices = 0;
 
 AltSoftSerial altSerial;
 void commandPrompt();
@@ -38,6 +39,7 @@ void setup() {
   //Serial.println("'C' to count devices.");
   Serial.println("'N' to initiate n-body sequence.");
   Serial.println("'M' to initiate dot-product sequence.");
+  Serial.println("numbers 1-9 to change workload magnitude.");
 }
 
 void loop() {
@@ -50,7 +52,6 @@ void commandPrompt() {
 
   if (Serial.available()) {
     input = Serial.read();
-    Serial.println(input);
     newData = true;
   }
 
@@ -69,19 +70,43 @@ void commandPrompt() {
          break;*/
       case 'n':
       case 'N':
-        setupNBody();
-        broadcastOpcode(NBODY);
-        sendBodies();
+        if (devices <= 0) //debug
+          Serial.println("Device list empty. Did you assign addresses?"); //debug
+        else {
+          setupNBody();
+          broadcastOpcode(NBODY);
+          sendBodies();
+        }
         break;
       case 'm':
       case 'M':
-        setupMatrices();
-        broadcastOpcode(MATRIX);
-        sendMatrices();
+        if (devices <= 0) //debug
+          Serial.println("Device list empty. Did you assign addresses?"); //debug
+        else {
+          setupMatrices();
+          broadcastOpcode(MATRIX);
+          sendMatrices();
+        }
+        break;
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9':
+        changeMagnitude(input - '0');
         break;
       default:
         //i guess debug functions will run here
         break;
     }
   }
+}
+
+void changeMagnitude(uint8_t magnitude) {
+  WORKLOAD_MAGNITUDE = magnitude;
+  Serial.print("Workload magnitude changed to "); Serial.println(WORKLOAD_MAGNITUDE);
 }

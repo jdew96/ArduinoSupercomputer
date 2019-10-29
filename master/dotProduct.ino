@@ -8,7 +8,7 @@ void setupMatrices() {
 }
 
 void initiateMatrices() {
-  n = devices;
+  n = devices * WORKLOAD_MAGNITUDE;
   C = malloc(n * sizeof(uint8_t *)); // allocate memory for C
   for (uint8_t i = 0; i < n; i++)
     C[i] = malloc(n * sizeof(float));
@@ -24,73 +24,38 @@ void initiateMatrices() {
     // B[i] = random(1.175494e-38, 3.402823e+38);
     B[i] = random(1, 100);
   }
+  Serial.print("generated three "); Serial.print(n); Serial.print('x'); Serial.print(n); Serial.println("matrices.");
 }
 
 void sendMatrices() {
-  if (n <= 0) //debug
-    Serial.println("Device list empty. Did you assign addresses?"); //debug
-  else {
-    Serial.println("broadcasting B");
-
-    for (uint8_t i = 0; i < n; i++) {
-      for (uint8_t j = 0; j < n; j++) {
-        //Serial.print((byte)&B[i][j]); Serial.print(' ');
-      }
-      Serial.println();
+  Serial.println("broadcasting B");
+  
+  Wire.beginTransmission(0);
+  for (uint8_t i = 0; i < n; i++) {
+    for (uint8_t j = 0; j < n; j++) {
+      Wire.write((byte)&B[i][j]);
     }
     Serial.println();
+  }
+  Wire.endTransmission();
+  delay(i2c_PROPAGATION_DELAY);
 
-    Wire.beginTransmission(0);
-    for (uint8_t i = 0; i < n; i++) {
-      for (uint8_t j = 0; j < n; j++) {
-        //Wire.write((byte)B[i][j]); //this works fine with hard-coded arrays
-        Wire.write((byte)&B[i][j]);
+  ////---------------------------------------------------------------------- TRANSMITTING A-MATRIX BYTE BY BYTE ------- WAITING FOR MYLES TO TEST
+  Serial.println("\nbroadcasting A");
+  uint8_t row = 0;
+  for (uint8_t addr = i2c_ADDRESS_MIN; addr < i2c_ADDRESS_MIN + devices; addr++) {
+    Wire.beginTransmission(addr); /// broadcast to each device individually
+    Serial.print("address "); Serial.print(addr); Serial.println(" gets:");
+    for (uint8_t rows_per = 0; rows_per < WORKLOAD_MAGNITUDE; rows_per++) { ////only pass rows to each device equal to workload magnitude
+      for (uint8_t i = 0; i < n; i++) {
+        Wire.write((byte)&A[row][i]);  ///pass each element in row
+        Serial.print((byte)&A[row][i]); Serial.print('\t');
       }
+      Serial.println();
+      row++;  //increment row after passing every elem in previous row
     }
     Wire.endTransmission();
     delay(i2c_PROPAGATION_DELAY);
-
-    ////---------------------------------------------------------------------- TRANSMITTING A-MATRIX BYTE BY BYTE ------- WAITING FOR MYLES TO TEST
-    Serial.println("broadcasting A");
-    uint8_t row = 0;
-    for (uint8_t addr = i2c_ADDRESS_MIN; addr < i2c_ADDRESS_MIN + devices; addr++) {
-      Wire.beginTransmission(addr); /// broadcast to each device individually
-      for (uint8_t rows_per = 0; rows_per < WORKLOAD_MAGNITUDE; rows_per++) { ////only pass rows to each device equal to workload magnitude
-        for (uint8_t i = 0; i < n; i++) {
-          Wire.write((byte)&A[row][i]);  ///pass each element in row
-        }
-        row++;  //increment row after passing every elem in previous row
-      }
-      Wire.endTransmission();
-      delay(i2c_PROPAGATION_DELAY);
-    }
-    ////-------------------------------------------------------------------------------------------------------------------------------------------
-    /*
-        Serial.println("broadcasting A");
-
-        for (uint8_t i = 0; i < n; i++) {
-          for (uint8_t j = 0; j < n; j++) {
-            if (i % 4 == 0) {
-              Serial.print("Sending ");
-              Serial.println(i + i2c_ADDRESS_MIN);
-            }
-            Serial.print(A[i - i2c_ADDRESS_MIN][j]); Serial.print(' ');
-          }
-          Serial.println();
-        }
-        Serial.println();
-
-        for (uint8_t i = i2c_ADDRESS_MIN; i < n + i2c_ADDRESS_MIN; i++ ) {
-          Wire.beginTransmission(i);
-          for (uint8_t x = 0; x < WORKLOAD_MAGNITUDE; x++) {
-          //remember, this needs to reflect the appropriate subarray size sent to each slave
-            //Wire.write(A[i - i2c_ADDRESS_MIN + x]); //broadcasts partialMatrix to relevant slave
-            Wire.write((byte *) &A[i - i2c_ADDRESS_MIN + x], sizeof A[i - i2c_ADDRESS_MIN + x]); //broadcasts partialMatrix to relevant slave
-          }
-          delay(i2c_PROPAGATION_DELAY);
-          Wire.endTransmission();
-        }
-    */
   }
 }
 

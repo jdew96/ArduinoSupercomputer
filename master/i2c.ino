@@ -9,7 +9,7 @@ void broadcastOpcode(bool operation) {
   new_opcode._operation = operation;
   new_opcode._devices = devices;
   new_opcode._workload_magnitude = WORKLOAD_MAGNITUDE;
-  
+
   Wire.beginTransmission(0); //broadcast?
   Wire.write((byte *) &new_opcode, sizeof new_opcode);
   Wire.endTransmission();
