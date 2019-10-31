@@ -4,7 +4,6 @@
 
 #include <Wire.h>
 #include <AltSoftSerial.h>
-#include <I2C_Anything.h>
 #define i2c_MASTER_ADDRESS 8
 #define i2c_ADDRESS_MIN 9
 #define i2c_ADDRESS_MAX 119
