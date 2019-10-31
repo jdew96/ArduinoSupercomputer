@@ -50,6 +50,7 @@ void sendMatrices() {
   for (uint8_t i = 0; i < n; i++) {
     for (uint8_t j = 0; j < n; j++) {
       Wire.write((byte)&B[i][j]);
+         Serial.print((byte)&A[row][i]); Serial.print('\t');
     }
     Serial.println();
   }
