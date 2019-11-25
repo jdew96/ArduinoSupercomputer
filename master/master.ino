@@ -1,10 +1,13 @@
 //interrupt pins: 0, 1, 2, 3, 7
 //altSoftSerial pins: TX:9, RX:8
 //i2c pins: SDA:A4, SCL:A5.
+#define M_SIZE 8
+
 
 #include <Wire.h>
 #include <AltSoftSerial.h>
 #include <I2C_Anything.h>
+#include <BasicLinearAlgebra.h>
 #define MATRIX 0
 #define NBODY 1
 #define i2c_MASTER_ADDRESS 8
@@ -31,7 +34,7 @@ float rando();
 // ^^^some of these can probably be commented out
 
 void setup() {
-  devices = 1;          //assume 1 device for now
+  //  devices = 1;          //assume 1 device for now
   Serial.begin(HW_SERIAL_BAUD);
   altSerial.begin(SW_SERIAL_BAUD);
   //Wire.setClock(400000L); //full throttle for i2c, check for stability when enabling
@@ -83,14 +86,17 @@ void commandPrompt() {
         break;
       case 'm':
       case 'M':
+        assignAddresses();
+        delay(i2c_PROPAGATION_DELAY * i2c_ADDRESS_MAX);
+        countDevices();
+
         if (devices <= 0) //debug
           Serial.println(F("Device list empty. Did you assign addresses?")); //debug
         else {
-          setupMatrices();
           broadcastOpcode(MATRIX);
-          sendMatrixB();
-          delay(i2c_PROPAGATION_DELAY);
-          sendMatrixA();
+          //          sendMatrixB();
+          //          delay(i2c_PROPAGATION_DELAY);
+          sendMatrices();
         }
         break;
       case '1':
@@ -114,4 +120,10 @@ void commandPrompt() {
 void changeMagnitude(uint8_t magnitude) {
   WORKLOAD_MAGNITUDE = magnitude;
   Serial.print(F("Workload magnitude changed to ")); Serial.println(WORKLOAD_MAGNITUDE);
+}
+
+int freeRam () { //should return free DRAM
+  extern int __heap_start, *__brkval;
+  int v;
+  return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
 }
