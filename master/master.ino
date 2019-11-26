@@ -68,12 +68,12 @@ void commandPrompt() {
       case 'A':
         assignAddresses();
         delay(i2c_PROPAGATION_DELAY * i2c_ADDRESS_MAX);
+        // countDevices();
+        break;
+      case 'c':
+      case 'C':
         countDevices();
         break;
-      /* case 'c':
-        case 'C':
-         countDevices();
-         break;*/
       case 'n':
       case 'N':
         if (devices <= 0) //debug
@@ -94,8 +94,7 @@ void commandPrompt() {
           Serial.println(F("Device list empty. Did you assign addresses?")); //debug
         else {
           broadcastOpcode(MATRIX);
-          //          sendMatrixB();
-          //          delay(i2c_PROPAGATION_DELAY);
+          Wire.onReceive(receivePartOfC);
           sendMatrices();
         }
         break;

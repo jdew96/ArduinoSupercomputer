@@ -29,21 +29,31 @@ uint8_t results_processed = 0;
 uint8_t workload_magnitude = 1;
 uint8_t devices = 1;
 
+uint8_t iter_x = 0, iter_y = 0;
+bool done_receiving_a = false;
+bool done_receiving_b = false;
 
 void setup() {
   Serial.begin(HW_SERIAL_BAUD);
   altSerial.begin(SW_SERIAL_BAUD);
-//  i2c_LOCAL_ADDRESS = 9;                //assume 1st device for now
   //Wire.setClock(400000L); //full throttle for i2c, check for stability when enabling
-//  Wire.begin(i2c_LOCAL_ADDRESS);        //assume 1st device for now
-//  TWAR = (i2c_LOCAL_ADDRESS << 1) | 1;  //assume 1st device for now
   Wire.onReceive(receiveOpcode);
   Serial.println("setup complete.");
   receiveAddress();
 }
 
 void loop() {
+  if (done_receiving_b == true) {
+    iter_x = 0, iter_y = 0;
+    done_receiving_b = false;
+    Serial.println();
+    Wire.onReceive(receiveMatrixA);
+  }
+  if (done_receiving_a == true) {
+    iter_x = 0, iter_y = 0;
+    done_receiving_a = false;
+    Wire.onReceive(receiveOpcode);
+    multiplyAndSendMatrices();
+  }
   //Serial.print('.');
-  while (results_processed != 0)
-    sendBody();
 }
