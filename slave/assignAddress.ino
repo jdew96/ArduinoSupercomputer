@@ -1,10 +1,23 @@
+//rename file to serial
+void informNeighbor() {
+  Serial.println("informed neighbor.");
+  altSerial.write('A');
+}
+
+void receiveReadySignal() {//spinlock waiting on ready signal
+  char flag = 0;
+  while (flag != 'A') {
+    flag = altSerial.read();
+    Serial.println(flag);
+  }
+  Serial.println("received neighbor inform.");
+}
+
 void assignAddresses() {
   if (i2c_LOCAL_ADDRESS != 0) {
     unsigned char data = i2c_LOCAL_ADDRESS + 1; //i2c useable adddress range: 8 - 119
-
     Serial.print(F("Addressed next device i2c with 0x"));
     Serial.println(data, HEX);
-
     altSerial.write(data);
   }
 }
@@ -20,7 +33,6 @@ void receiveAddress() {
       i2c_LOCAL_ADDRESS = input;
       Wire.begin(i2c_LOCAL_ADDRESS);
       TWAR = (i2c_LOCAL_ADDRESS << 1) | 1;  // enable broadcasts to be received
-      altSerial.end(); //a likely futile attempt to free more dynamic memory during runtime
     }
     else {
       if (input != 255) {

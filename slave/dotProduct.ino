@@ -9,9 +9,11 @@ void setupMatrices() {
 void multiplyAndSendMatrices() {
   BLA::Matrix < M_SIZE, M_SIZE / M_SIZE > M = B * A;
   //DEBUGGING ONLY
-  //M(0, 0) = M(1, 0) = i2c_LOCAL_ADDRESS;
+  //  M(0, 0) = M(1, 0) = M(2, 0)= M(3, 0) = i2c_LOCAL_ADDRESS;
   ////////////////
-  Serial.println("sending C: "); 
+
+  receiveReadySignal(); //spinlock waiting on ready signal
+  Serial.println("sending C: ");
   for (uint8_t i = iter_y; i < M_SIZE; i++) {
     for (uint8_t j = iter_x; j < workload_magnitude; j++) {
       Serial.print(M(i, j)); Serial.print('\t');
@@ -34,6 +36,7 @@ void multiplyAndSendMatrices() {
     }
   }
   Wire.endTransmission();
+  informNeighbor();
 }
 
 void receiveMatrixB(uint8_t howMany) {
@@ -69,7 +72,7 @@ void receiveMatrixB(uint8_t howMany) {
 void receiveMatrixA(uint8_t howMany) {
   while (Wire.available () > 0) {
     if (iter_x == 0 && iter_y == 0)
-      Serial.print("reading A:");////////////////////////////////////////////////////////
+      Serial.print("reading A:");
     Serial.println();
     uint8_t buffer_limit = 8;
     for (uint8_t i = iter_y; i < M_SIZE; i++) {
@@ -89,7 +92,7 @@ void receiveMatrixA(uint8_t howMany) {
         Serial.println();
       }
     }
-//        Serial.println(A(workload_magnitude - 1, M_SIZE - 1));
+    //        Serial.println(A(workload_magnitude - 1, M_SIZE - 1));
     //if final value of matrix is populated with anything other than default value
     if (A(M_SIZE - 1, workload_magnitude - 1) != 0.0) {
       Serial.println();

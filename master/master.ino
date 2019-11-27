@@ -1,5 +1,5 @@
 //interrupt pins: 0, 1, 2, 3, 7
-//altSoftSerial pins: TX:9, RX:8
+//altSoft//Serial pins: TX:9, RX:8
 //i2c pins: SDA:A4, SCL:A5.
 #define M_SIZE 8
 
@@ -14,10 +14,12 @@
 #define i2c_ADDRESS_MIN 9
 #define i2c_ADDRESS_MAX 119
 #define i2c_PROPAGATION_DELAY 5 //this could be a bottleneck at some point
-#define HW_SERIAL_BAUD 115200
-#define SW_SERIAL_BAUD 9600
+#define HW_Serial_BAUD 115200
+#define SW_Serial_BAUD 9600
 uint8_t WORKLOAD_MAGNITUDE = 1;
 uint8_t devices = 0;
+bool a_transmission_complete = false;
+bool done_receiving_c = false;
 
 AltSoftSerial altSerial;
 void commandPrompt();
@@ -33,23 +35,25 @@ void sendMatrices();
 float rando();
 // ^^^some of these can probably be commented out
 
+
 void setup() {
   //  devices = 1;          //assume 1 device for now
-  Serial.begin(HW_SERIAL_BAUD);
-  altSerial.begin(SW_SERIAL_BAUD);
-  //Wire.setClock(400000L); //full throttle for i2c, check for stability when enabling
+  Serial.begin(HW_Serial_BAUD);
+  altSerial.begin(SW_Serial_BAUD);
+  Wire.setClock(400000L); //full throttle for i2c, check for stability when enabling
   Wire.begin(i2c_MASTER_ADDRESS);
-  Serial.println(F("setup complete."));
-  Serial.println(F("Welcome to the shit show.\n"));
-  Serial.println(F("'A' to assign addresses."));
-  //Serial.println(F("'C' to count devices."));
-  Serial.println(F("'N' to initiate n-body sequence."));
-  Serial.println(F("'M' to initiate dot-product sequence."));
-  Serial.println(F("numbers 1-9 to change workload magnitude.\n"));
+  //Serial.println(F("setup complete."));
+  //Serial.println(F("Welcome to the shit show.\n"));
+  //Serial.println(F("'A' to assign addresses."));
+  ////Serial.println(F("'C' to count devices."));
+  //Serial.println(F("'N' to initiate n-body sequence."));
+  //Serial.println(F("'M' to initiate dot-product sequence."));
+  //Serial.println(F("numbers 1-9 to change workload magnitude.\n"));
 }
 
 void loop() {
   commandPrompt();
+//    //Serial.println(freeRam());
 }
 
 void commandPrompt() {
@@ -77,11 +81,10 @@ void commandPrompt() {
       case 'n':
       case 'N':
         if (devices <= 0) //debug
-          Serial.println(F("Device list empty. Did you assign addresses?")); //debug
+         ; //Serial.println(F("Device list empty. Did you assign addresses?")); //debug
         else {
           setupNBody();
           broadcastOpcode(NBODY);
-          sendBodies();
         }
         break;
       case 'm':
@@ -91,11 +94,13 @@ void commandPrompt() {
         countDevices();
 
         if (devices <= 0) //debug
-          Serial.println(F("Device list empty. Did you assign addresses?")); //debug
+          ;//Serial.println(F("Device list empty. Did you assign addresses?")); //debug
         else {
           broadcastOpcode(MATRIX);
-          Wire.onReceive(receivePartOfC);
+          Wire.onReceive(receiveC);
           sendMatrices();
+          // //Serial.println(F("does this actually finish?"));
+          // aggregateC();
         }
         break;
       case '1':
@@ -118,7 +123,7 @@ void commandPrompt() {
 
 void changeMagnitude(uint8_t magnitude) {
   WORKLOAD_MAGNITUDE = magnitude;
-  Serial.print(F("Workload magnitude changed to ")); Serial.println(WORKLOAD_MAGNITUDE);
+  //Serial.print(F("Workload magnitude changed to ")); //Serial.println(WORKLOAD_MAGNITUDE);
 }
 
 int freeRam () { //should return free DRAM
