@@ -2,8 +2,8 @@ uint8_t iter_x = 0, iter_y = 0;
 BLA::Matrix < M_SIZE, M_SIZE> C; //eventually we might be able to remove this entirely
 
 float rando() { //random float generator
-  uint8_t decNum = random(0, 99); // Calculate decimal point of numbers randomly
-  float decValue = decNum / 100.0;
+  uint8_t decNum = random(0, 99999); // Calculate decimal point of numbers randomly
+  float decValue = decNum / 100000.0;
   uint8_t intValue = random(1, 100); // Calculate integer part of numbers randomly
   float finalVal = intValue + decValue;
   return finalVal;
